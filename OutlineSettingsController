@@ -1,0 +1,153 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using FlatKit;
+using System.Collections;
+
+/*
+ * Outline Settings Controller for Unity
+ * 
+ * This script is an additional feature for the FlatKit package (https://flatkit.dustyroom.com/additional-scripts/).
+ * It was created by heartingNinja.
+ * 
+ * Purpose:
+ * - Allows runtime control of outline thickness for objects..
+ * - Saves and loads the outline thickness value between sessions using PlayerPrefs.
+ * 
+ * Features:
+ * - Outline thickness control via a slider.
+ * - Persists settings using PlayerPrefs for outline thickness.
+ * 
+ * Usage:
+ * - Attach the script to a GameObject and assign the required references (OutlineSettings, Camera, Slider, etc.).
+ * - Adjust the outline thickness and quality settings through UI.
+ * - The script handles the outline thickness change and saves it automatically.
+ *
+ * Created by: heartingNinja
+ * 
+ * License: MIT License (or specify any other license you are using)
+ */
+
+public class OutlineSettingsController : MonoBehaviour
+{
+    #region OutlineSettings
+    [Header("Outline Settings")]
+    [SerializeField] private Slider outlineThicknessSlider;
+    [SerializeField] private TextMeshProUGUI outlineThicknessText;
+    [SerializeField] OutlineSettings outlineSettings;
+    [SerializeField] Camera pauseCamera;
+    // Need a button to update the outline after changing
+    [SerializeField] Button resetGraphics;
+    // Must have a Quality level above starting on Project Settings
+    // Example: You are using Performant. You need to add a new Quality level that would be about it
+    int currentQualityLevel;
+
+    private void Start()
+    {
+        InitializeOutlineThicknessSlider();
+    }
+
+    private void InitializeOutlineThicknessSlider()
+    {
+        resetGraphics.onClick.AddListener(RestartPipeline);
+        currentQualityLevel = QualitySettings.GetQualityLevel();
+        // Load saved outline thickness setting (default is 2)
+        int savedOutlineThickness = PlayerPrefs.GetInt("OutlineThickness", 2);
+
+        // Set the text to display the saved value
+        outlineThicknessText.text = savedOutlineThickness.ToString();
+
+        // Set the slider's minimum and maximum values
+        outlineThicknessSlider.minValue = 0;
+        outlineThicknessSlider.maxValue = 5;
+
+        // Ensure the slider only uses integer values
+        outlineThicknessSlider.wholeNumbers = true;
+
+        // Add a listener to handle slider value changes
+        outlineThicknessSlider.onValueChanged.AddListener(OnOutlineThicknessChanged);
+
+        // Set the initial slider value to the saved thickness value
+        outlineThicknessSlider.value = savedOutlineThickness;
+        OnOutlineThicknessChanged(savedOutlineThickness);
+    }
+
+    public void OnOutlineThicknessChanged(float value)
+    {
+        // Convert the slider value to an integer
+        int intValue = Mathf.RoundToInt(value);
+
+        // Apply the outline thickness setting
+        ApplyOutlineThickness(intValue);
+
+        // Update the display text
+        outlineThicknessText.text = intValue.ToString();
+
+        // Save the outline thickness setting
+        PlayerPrefs.SetInt("OutlineThickness", intValue);
+        PlayerPrefs.Save();
+    }
+
+    private void ApplyOutlineThickness(int value)
+    {
+        // Ensure the outlineSettings reference is not null
+        if (outlineSettings != null)
+        {
+            // Set the thickness property in outlineSettings
+            outlineSettings.thickness = value;  // Assuming `thickness` is the property controlling outline thickness
+        }
+        else
+        {
+            Debug.LogWarning("OutlineSettings reference is missing!");
+        }
+    }
+
+    private void RestartPipeline()
+    {
+        // Change to a rende setting that does not have the outline render feature
+        QualitySettings.SetQualityLevel(currentQualityLevel - 1);
+        // Start a coroutine to change to quality level 1 after one frame
+        StartCoroutine(ChangeQualityLevelAfterFrames(2));
+
+        Debug.Log("Render pipeline restarted to apply changes.");
+    }
+
+    private IEnumerator ChangeQualityLevelAfterFrames(int framesToWait)
+    {
+        // Wait for the specified number of frames
+        for (int i = 0; i < framesToWait; i++)
+        {
+            yield return null;  // This waits for one frame
+        }
+
+        // Set quality level to 1 after waiting for the frames
+        QualitySettings.SetQualityLevel(currentQualityLevel);
+
+        // Turn off active cameras
+        TurnOffActiveCameras();
+
+        // Wait for another specific number of frames before turning them back on
+        for (int i = 0; i < framesToWait; i++)
+        {
+            yield return null;  // Wait for one frame per iteration
+        }
+
+        // Turn on the active cameras
+        TurnOnActiveCameras();
+
+        Debug.Log("Quality level set to 1 after waiting for frames and camera toggled.");
+    }
+
+    private void TurnOffActiveCameras()
+    {
+        pauseCamera.gameObject.SetActive(false);  // Turn off the camera
+        Debug.Log("Camera turned off: ");
+    }
+
+    private void TurnOnActiveCameras()
+    {
+        pauseCamera.gameObject.SetActive(true);  // Turn on the camera
+        Debug.Log("Camera turned on: ");
+    }
+    #endregion
+}
