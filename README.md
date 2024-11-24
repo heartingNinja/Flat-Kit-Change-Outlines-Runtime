@@ -1,6 +1,6 @@
 # FlatKit - Outline Settings Controller
 
-This Unity script allows you to control the outline thickness using FlatKit. It requires a button and slider to reset the pipeline and change the outline thickness.
+This Unity script allows you to control the outline thickness using FlatKit during runtime. It requires a button and slider to reset the pipeline and change the outline thickness.
 
 ## Setup Instructions
 
