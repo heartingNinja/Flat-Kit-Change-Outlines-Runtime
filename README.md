@@ -8,7 +8,7 @@ This Unity script allows you to control the outline thickness using FlatKit duri
    - Attach the `OutlineSettingsController` script to any GameObject in your scene where you want to control the outline settings.
 
 2. **UI Elements Setup**:
-   - You will need a **Slider** and **TextMeshProUGUI** to control and display the outline thickness.
+   - You will need a **Slider** and **TextMeshProUGUI** to control and display the outline thickness. Apply them to the OutlineSettingsController
 
 3. **Quality Setting Requirement**:
    - Ensure that your Unity project has a **Quality setting** higher than the default setting in **Project Settings > Quality**.
