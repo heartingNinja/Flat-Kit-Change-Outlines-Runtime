@@ -18,7 +18,7 @@ This Unity script allows you to control the outline thickness using FlatKit duri
    - Use the **Slider** to change the outline thickness. The setting is saved automatically using PlayerPrefs.
 
 5. **Reset the Pipeline**:
-   - Click the button to reset the pipeline and apply the updated quality settings.
+   - Click the button to reset the pipeline and apply the updated quality settings. Changing the quality settings was the only way I was able to apply the change at runtime.
 
 ## Notes
 
